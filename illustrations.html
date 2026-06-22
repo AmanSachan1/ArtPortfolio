@@ -91,10 +91,21 @@
     background:rgba(245,237,226,.02);transition:transform .4s ease,border-color .4s ease,box-shadow .4s ease}
   .card:hover{transform:translateY(-6px);border-color:color-mix(in srgb,var(--accent) 55%,transparent);
     box-shadow:0 30px 60px -30px rgba(0,0,0,.7),0 0 30px -10px color-mix(in srgb,var(--accent) 50%,transparent)}
-  .thumb{aspect-ratio:4/3;position:relative;overflow:hidden;
-    background:
-      radial-gradient(120% 120% at 25% 15%, color-mix(in srgb,var(--accent) 55%,transparent), transparent 60%),
-      linear-gradient(150deg, color-mix(in srgb,var(--accent) 30%,#161210), #161210)}
+  .thumb{aspect-ratio:4/3;position:relative;overflow:hidden;background:#161210}
+  .thumb .track{display:flex;height:100%;transition:transform .5s cubic-bezier(.65,0,.2,1)}
+  .thumb .slide{flex:0 0 100%;height:100%}
+  .thumb .slide img{width:100%;height:100%;object-fit:cover;display:block}
+  .thumb .car-btn{position:absolute;top:50%;transform:translateY(-50%);z-index:3;width:34px;height:34px;
+    border-radius:50%;border:1px solid var(--line);background:rgba(20,16,14,.55);backdrop-filter:blur(8px);
+    color:#fff;cursor:pointer;display:grid;place-items:center;font-size:1rem;opacity:0;
+    transition:opacity .3s ease,background .3s ease,color .3s ease}
+  .card:hover .thumb .car-btn{opacity:1}
+  .thumb .car-btn:hover{background:var(--accent);color:#161210;border-color:var(--accent)}
+  .thumb .car-btn.prev{left:10px}.thumb .car-btn.next{right:10px}
+  .thumb .dots{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);z-index:3;display:flex;gap:6px}
+  .thumb .dots button{width:6px;height:6px;border-radius:50%;border:none;cursor:pointer;padding:0;
+    background:rgba(255,255,255,.55);transition:all .3s ease}
+  .thumb .dots button.on{width:18px;border-radius:4px;background:var(--accent)}
   .thumb .tag{position:absolute;top:14px;left:14px;font-family:var(--mono);font-size:.62rem;
     letter-spacing:.18em;text-transform:uppercase;color:var(--text);background:rgba(0,0,0,.4);
     backdrop-filter:blur(4px);padding:6px 11px;border-radius:999px;border:1px solid var(--line)}
@@ -184,12 +195,12 @@
   <main class="wrap">
     <section class="gallery">
       <a class="card reveal" href="#">
-        <div class="thumb"><span class="tag">Sketchbook</span></div>
+        <div class="thumb" data-images="Media/Illustrations/Romance%20Dawn.PNG"><span class="tag">Digital</span></div>
         <div class="body">
-          <div class="meta">Digital · 2024</div>
-          <h3>Field Notes</h3>
-          <p>Stylus drawings made loose and fast — characters, plants, and small machines that double as a personal type-and-color study.</p>
-          <span class="view">View set →</span>
+          <div class="meta">Digital Painting · 2024</div>
+          <h3>Romance Dawn</h3>
+          <p>A digital illustration painted in layered color — light breaking over the horizon at the start of the adventure.</p>
+          <span class="view">View piece →</span>
         </div>
       </a>
       <a class="card reveal" href="#">
@@ -244,6 +255,45 @@
 </div>
 
 <script>
+  /* ---- card image carousels ---- */
+  (function(){
+    var ACCENT='#9575d6';
+    function ph(label,n){
+      var svg="<svg xmlns='http://www.w3.org/2000/svg' width='800' height='600'>"
+        +"<defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'>"
+        +"<stop offset='0' stop-color='"+ACCENT+"' stop-opacity='0.8'/>"
+        +"<stop offset='1' stop-color='#161210'/></linearGradient></defs>"
+        +"<rect width='800' height='600' fill='url(#g)'/>"
+        +"<text x='40' y='540' fill='rgba(255,255,255,.85)' font-family='monospace' font-size='26'>"+label+"</text>"
+        +"<text x='40' y='574' fill='rgba(255,255,255,.5)' font-family='monospace' font-size='15'>0"+n+" · replace with your image</text>"
+        +"</svg>";
+      return 'data:image/svg+xml,'+encodeURIComponent(svg);
+    }
+    document.querySelectorAll('.card .thumb').forEach(function(thumb){
+      var card=thumb.closest('.card'); var h3=card.querySelector('h3');
+      var label=(h3?h3.textContent:'').trim();
+      var imgs=(thumb.dataset.images||'').split('|').map(function(s){return s.trim();}).filter(Boolean);
+      if(!imgs.length) imgs=[ph(label,1),ph(label,2),ph(label,3)];
+      var track=document.createElement('div'); track.className='track';
+      track.innerHTML=imgs.map(function(s,i){return "<div class='slide'><img src=\""+s+"\" alt=\""+label+" "+(i+1)+"\" loading='lazy'></div>";}).join('');
+      thumb.insertBefore(track,thumb.firstChild);
+      if(imgs.length<2) return;
+      var prev=document.createElement('button'); prev.type='button'; prev.className='car-btn prev'; prev.setAttribute('aria-label','Previous'); prev.textContent='‹';
+      var next=document.createElement('button'); next.type='button'; next.className='car-btn next'; next.setAttribute('aria-label','Next'); next.textContent='›';
+      var dots=document.createElement('div'); dots.className='dots';
+      dots.innerHTML=imgs.map(function(_,i){return "<button type='button' class='"+(i===0?'on':'')+"' data-i='"+i+"' aria-label='Slide "+(i+1)+"'></button>";}).join('');
+      thumb.appendChild(prev); thumb.appendChild(next); thumb.appendChild(dots);
+      var idx=0, dotEls=dots.querySelectorAll('button');
+      function go(n){ idx=(n+imgs.length)%imgs.length; track.style.transform='translateX('+(-idx*100)+'%)'; dotEls.forEach(function(d,di){d.classList.toggle('on',di===idx);}); }
+      function stop(e){ e.preventDefault(); e.stopPropagation(); }
+      prev.addEventListener('click',function(e){stop(e);go(idx-1);});
+      next.addEventListener('click',function(e){stop(e);go(idx+1);});
+      dotEls.forEach(function(d){d.addEventListener('click',function(e){stop(e);go(+d.dataset.i);});});
+      var x0=null;
+      thumb.addEventListener('touchstart',function(e){x0=e.touches[0].clientX;},{passive:true});
+      thumb.addEventListener('touchend',function(e){ if(x0===null)return; var dx=e.changedTouches[0].clientX-x0; if(Math.abs(dx)>40){go(dx<0?idx+1:idx-1);} x0=null; },{passive:true});
+    });
+  })();
   const ro = new IntersectionObserver((entries)=>{
     entries.forEach(en=>{ if(en.isIntersecting){ en.target.classList.add('in'); ro.unobserve(en.target);} });
   },{threshold:.12});
