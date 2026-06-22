@@ -253,7 +253,7 @@
   }
   @media (max-width:860px){
     .banners{flex-direction:column;min-height:0;gap:14px}
-    .banner{clip-path:none!important;margin-left:0!important;min-height:220px;
+    .banner{clip-path:none!important;margin-left:0!important;min-height:260px;
       padding:26px 28px;border-radius:14px;border:1px solid var(--line)}
     .sidenav a .lbl{display:none}
     .sidenav{gap:4px}
@@ -264,6 +264,14 @@
   @media (max-width:560px){
     .wrap{width:92vw;margin-left:4vw}
     .sidenav{display:none}
+  }
+  /* desktop: fit hero + Bodies of Work into one screen (no scroll) */
+  @media (min-width:861px){
+    .hero{min-height:34svh}
+    .hero h1{font-size:clamp(2.8rem,6vw,6.5rem);margin-bottom:24px}
+    #explore{padding-top:0;padding-bottom:clamp(12px,2vh,28px)}
+    #explore .eyebrow{margin-bottom:12px}
+    .banners{min-height:60vh}
   }
   @media (prefers-reduced-motion:reduce){
     *{animation:none!important;scroll-behavior:auto}
@@ -310,7 +318,6 @@
 <!-- RIGHT SIDE SECTION NAV -->
 <nav class="sidenav" aria-label="Section navigation">
   <a href="#home"><span class="lbl">Home</span><span class="dot"></span></a>
-  <a href="#explore"><span class="lbl">Explore</span><span class="dot"></span></a>
   <a href="#portfolio"><span class="lbl">Portfolio</span><span class="dot"></span></a>
   <a href="#about"><span class="lbl">About</span><span class="dot"></span></a>
 </nav>
@@ -510,17 +517,20 @@ document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
 
 /* ---- active section in side nav ---- */
 const links = [...document.querySelectorAll('.sidenav a')];
-const sections = links.map(a=>document.querySelector(a.getAttribute('href')));
-const so = new IntersectionObserver((entries)=>{
-  entries.forEach(en=>{
-    if(en.isIntersecting){
-      links.forEach(l=>l.classList.remove('active'));
-      const idx = sections.indexOf(en.target);
-      if(idx>-1) links[idx].classList.add('active');
-    }
+const navTargets = links.map(a=>document.querySelector(a.getAttribute('href')));
+function setActiveNav(){
+  const probe = window.scrollY + window.innerHeight*0.35;
+  let current = 0;
+  navTargets.forEach((sec,i)=>{
+    if(!sec) return;
+    const top = sec.getBoundingClientRect().top + window.scrollY;
+    if(top <= probe) current = i;
   });
-},{rootMargin:'-45% 0px -45% 0px'});
-sections.forEach(s=>s && so.observe(s));
+  links.forEach((l,i)=>l.classList.toggle('active', i===current));
+}
+window.addEventListener('scroll', setActiveNav, {passive:true});
+window.addEventListener('resize', setActiveNav);
+setActiveNav();
 
 document.getElementById('yr').textContent = new Date().getFullYear();
 
