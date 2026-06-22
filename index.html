@@ -150,7 +150,8 @@
     padding:32px calc(var(--slant) + 26px);text-decoration:none;color:var(--text);
     background:
       radial-gradient(120% 90% at 30% 110%, color-mix(in srgb,var(--accent) 38%,transparent), transparent 60%),
-      linear-gradient(180deg, rgba(0,0,0,.18), rgba(0,0,0,.5));
+      linear-gradient(180deg, rgba(0,0,0,.22), rgba(0,0,0,.58)),
+      var(--img, none) center/cover no-repeat;
     isolation:isolate;overflow:hidden;
     clip-path:polygon(var(--slant) 0, 100% 0, calc(100% - var(--slant)) 100%, 0 100%);
     transition:filter .45s ease, background .45s ease;
@@ -173,8 +174,9 @@
   }
   .banner:hover{
     background:
-      radial-gradient(120% 90% at 30% 110%, color-mix(in srgb,var(--accent) 60%,transparent), transparent 62%),
-      linear-gradient(180deg, rgba(0,0,0,.05), rgba(0,0,0,.35));
+      radial-gradient(120% 90% at 30% 110%, color-mix(in srgb,var(--accent) 55%,transparent), transparent 62%),
+      linear-gradient(180deg, rgba(0,0,0,.10), rgba(0,0,0,.42)),
+      var(--img, none) center/cover no-repeat;
     filter:brightness(1.12) drop-shadow(0 0 26px color-mix(in srgb,var(--accent) 55%,transparent));
     z-index:5;
   }
@@ -338,7 +340,7 @@
     </div>
     <div class="wrap reveal" style="width:100vw;margin-left:0">
       <div class="banners">
-        <a class="banner" href="ceramics.html" style="--accent:var(--clay)">
+        <a class="banner" href="ceramics.html" style="--accent:var(--clay); --img:url('Media/Ceramics/Whale%20Bowl%2001.jpg')">
           <span class="idx">01</span>
           <span class="name"><em>Ceramics</em></span>
           <span class="go">Enter →</span>
